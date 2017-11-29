@@ -15,8 +15,8 @@
 
 var cookie = require('cookie');
 var crc = require('crc').crc32;
-var debug = require('debug')('express-session');
-var deprecate = require('depd')('express-session');
+var debug = require('debug')('express-php-session');
+var deprecate = require('depd')('express-php-session');
 var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
@@ -217,8 +217,6 @@ function session(options) {
 
     // set-cookie
     onHeaders(res, function(){
-
-
       if (!req.session) {
         debug('no session');
         return;
@@ -492,11 +490,12 @@ function session(options) {
         debug('session found');
         store.createSession(req, sess);
         originalId = req.sessionID;
-        originalHash = hash(sess);
+        //originalHash = hash(sess);
 
+          /**
         if (!resaveSession) {
           savedHash = originalHash
-        }
+        }**/
 
         wrapmethods(req.session);
       }
@@ -536,16 +535,7 @@ function getcookie(req, name, secrets) {
     raw = cookies[name];
 
     if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = unsigncookie(raw.slice(2), secrets);
-
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
-      }
+      val = raw;
     }
   }
 
@@ -555,28 +545,6 @@ function getcookie(req, name, secrets) {
 
     if (val) {
       deprecate('cookie should be available in req.headers.cookie');
-    }
-  }
-
-  // back-compat read from cookieParser() cookies data
-  if (!val && req.cookies) {
-    raw = req.cookies[name];
-
-    if (raw) {
-      if (raw.substr(0, 2) === 's:') {
-        val = unsigncookie(raw.slice(2), secrets);
-
-        if (val) {
-          deprecate('cookie should be available in req.headers.cookie');
-        }
-
-        if (val === false) {
-          debug('cookie signature invalid');
-          val = undefined;
-        }
-      } else {
-        debug('cookie unsigned')
-      }
     }
   }
 
@@ -667,6 +635,8 @@ function setcookie(res, name, val, secret, options) {
  * @private
  */
 function unsigncookie(val, secrets) {
+    return val;
+
   for (var i = 0; i < secrets.length; i++) {
     var result = signature.unsign(val, secrets[i]);
 
