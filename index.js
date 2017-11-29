@@ -1,5 +1,5 @@
 /*!
- * express-session
+ * express-php-session
  * Copyright(c) 2010 Sencha Inc.
  * Copyright(c) 2011 TJ Holowaychuk
  * Copyright(c) 2014-2015 Douglas Christopher Wilson
@@ -20,12 +20,12 @@ var deprecate = require('depd')('express-session');
 var parseUrl = require('parseurl');
 var uid = require('uid-safe').sync
   , onHeaders = require('on-headers')
-  , signature = require('cookie-signature')
+  , signature = require('cookie-signature');
 
 var Session = require('./session/session')
   , MemoryStore = require('./session/memory')
   , Cookie = require('./session/cookie')
-  , Store = require('./session/store')
+  , Store = require('./session/store');
 
 // environment
 
@@ -84,34 +84,34 @@ var defer = typeof setImmediate === 'function'
  */
 
 function session(options) {
-  var opts = options || {}
+  var opts = options || {};
 
   // get the cookie options
-  var cookieOptions = opts.cookie || {}
+  var cookieOptions = opts.cookie || {};
 
   // get the session id generate function
-  var generateId = opts.genid || generateSessionId
+  var generateId = opts.genid || generateSessionId;
 
   // get the session cookie name
-  var name = opts.name || opts.key || 'connect.sid'
+  var name = opts.name || opts.key || 'connect.sid';
 
   // get the session store
-  var store = opts.store || new MemoryStore()
+  var store = opts.store || new MemoryStore();
 
   // get the trust proxy setting
-  var trustProxy = opts.proxy
+  var trustProxy = opts.proxy;
 
   // get the resave session option
   var resaveSession = opts.resave;
 
   // get the rolling session option
-  var rollingSessions = Boolean(opts.rolling)
+  var rollingSessions = Boolean(opts.rolling);
 
   // get the save uninitialized session option
-  var saveUninitializedSession = opts.saveUninitialized
+  var saveUninitializedSession = opts.saveUninitialized;
 
   // get the cookie signing secret
-  var secret = opts.secret
+  var secret = opts.secret;
 
   if (typeof generateId !== 'function') {
     throw new TypeError('genid option must be a function');
@@ -132,7 +132,7 @@ function session(options) {
   }
 
   // TODO: switch to "destroy" on next major
-  var unsetDestroy = opts.unset === 'destroy'
+  var unsetDestroy = opts.unset === 'destroy';
 
   if (Array.isArray(secret) && secret.length === 0) {
     throw new TypeError('secret option array must contain one or more strings');
@@ -167,26 +167,26 @@ function session(options) {
   var storeImplementsTouch = typeof store.touch === 'function';
 
   // register event listeners for the store to track readiness
-  var storeReady = true
+  var storeReady = true;
   store.on('disconnect', function ondisconnect() {
     storeReady = false
-  })
+  });
   store.on('connect', function onconnect() {
     storeReady = true
-  })
+  });
 
   return function session(req, res, next) {
     // self-awareness
     if (req.session) {
-      next()
+      next();
       return
     }
 
     // Handle connection as if there is no session if
     // the store has temporarily disconnected etc
     if (!storeReady) {
-      debug('store is disconnected')
-      next()
+      debug('store is disconnected');
+      next();
       return
     }
 
@@ -207,7 +207,7 @@ function session(options) {
     var originalHash;
     var originalId;
     var savedHash;
-    var touched = false
+    var touched = false;
 
     // expose store
     req.sessionStore = store;
@@ -217,6 +217,8 @@ function session(options) {
 
     // set-cookie
     onHeaders(res, function(){
+
+
       if (!req.session) {
         debug('no session');
         return;
@@ -246,6 +248,7 @@ function session(options) {
     var _end = res.end;
     var _write = res.write;
     var ended = false;
+
     res.end = function end(chunk, encoding) {
       if (ended) {
         return false;
@@ -376,7 +379,10 @@ function session(options) {
       }
 
       function save() {
+
         debug('saving %s', this.id);
+          //php-edit save
+          return;
         savedHash = hash(this);
         _save.apply(this, arguments);
       }
@@ -413,6 +419,9 @@ function session(options) {
 
     // determine if session should be saved to store
     function shouldSave(req) {
+        //php-session edit
+        return false;
+
       // cannot set cookie without a session ID
       if (typeof req.sessionID !== 'string') {
         debug('session ignored because of bogus req.sessionID %o', req.sessionID);
@@ -437,6 +446,9 @@ function session(options) {
 
     // determine if cookie should be set on response
     function shouldSetCookie(req) {
+        //php-session edit
+        return false;
+
       // cannot set cookie without a session ID
       if (typeof req.sessionID !== 'string') {
         return false;
@@ -449,7 +461,10 @@ function session(options) {
 
     // generate a session if the browser doesn't send a sessionID
     if (!req.sessionID) {
-      debug('no SID sent, generating session');
+        //php-session edit
+      debug('no SID sent, generating session, exit');
+        return;
+
       generate();
       next();
       return;

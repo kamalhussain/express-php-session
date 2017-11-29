@@ -84,11 +84,14 @@ Store.prototype.load = function(sid, fn){
  */
 
 Store.prototype.createSession = function(req, sess){
+    //php-session edit
+    /**
   var expires = sess.cookie.expires
     , orig = sess.cookie.originalMaxAge;
   sess.cookie = new Cookie(sess.cookie);
   if ('string' == typeof expires) sess.cookie.expires = new Date(expires);
   sess.cookie.originalMaxAge = orig;
+     **/
   req.session = new Session(req, sess);
   return req.session;
 };
